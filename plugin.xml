@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plugin SYSTEM "../plugin.dtd">
+<plugin 
+    name="DLR Oxygen Plugin"
+    description="Installs the DLR Framework"
+    version="${project.version}.${timestamp}"
+    vendor="ILIR"
+    class="ro.dlri.oxygen.plugin.DlriOxygenPlugin"
+    classLoaderType="preferReferencedResources"
+    id="ro.dlri.oxygen.plugin">
+    <runtime>
+        <library name="lib/plugin.jar" scope="global" />
+        <library name="${oxygenInstallDir}/jre/lib/ext/jfxrt.jar" />
+    </runtime>
+<!--     <extension type="WorkspaceAccessJS" href="wsAccess.js"/> -->
+    <extension type="WorkspaceAccess" class="ro.dlri.oxygen.plugin.DlriOxygenPluginExtension"/>
+    <extension type="AdditionalFrameworks" path="frameworks"/>
+    <toolbar id="DlrToolbar" initialSide="NORTH" initialRow="1"/>
+</plugin>
