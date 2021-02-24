@@ -100,7 +100,7 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 	private static String get_jnlp_jars_urls_api_url = dlr_app_apis_url + "system/jnlp-jar-urls/";
 	private static String user_login_api_url = dlr_app_apis_url + "users/login";
 	private static String get_entry_full_api_url = dlr_app_apis_url + "entry/full";
-	private static String get_sigla_api_url = "http://" + dlr_host + ":" + dlr_port + "/exist/rest/db/data/dlr/bibliographic-references.xml";
+	private static String get_sigla_api_url = "http://" + dlr_host + dlr_port + "/exist/rest/db/data/dlr/bibliographic-references.xml";
 
 	public JFrame parentFrame;
 
@@ -221,8 +221,8 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 		downloadAndStoreBinaryFile(get_sigla_api_url, "bibliographic-references.xml", resourcesDir.resolve("xml"));
 
 		Optional.ofNullable(dataSourceConnectionInfo)
-				.map(d1 -> d1.getProperty(DataSourceConnectionInfo.URL).toString().contains(":" + dlr_port) ? null
-						: dlr_port)
+				.map(d1 -> d1.getProperty(DataSourceConnectionInfo.URL).toString().contains("188.212.37.221") ? "exist.solirom.ro"
+						: null)
 				.ifPresent(d2 -> generateDatasourceConnection());
 		Optional.ofNullable(dataSourceConnectionInfo)
 				.map(d1 -> d1.getProperty(DataSourceConnectionInfo.INITIAL_DATABASE).toString().contains("dlr-app")
