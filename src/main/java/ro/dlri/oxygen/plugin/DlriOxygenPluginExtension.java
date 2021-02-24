@@ -91,9 +91,9 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 	private static Path eXistFilesBaseDir;
 	private String renderingTemplateNamePrefix = "redare_";
 
-	private static String dlr_host = "188.212.37.221";
-	private static String dlr_port = "8080";
-	private static String dlr_app_url = "http://" + dlr_host + ":" + dlr_port + "/exist/apps/dlr-api/";
+	private static String dlr_host = "exist.solirom.ro";
+	private static String dlr_port = "";
+	private static String dlr_app_url = "http://" + dlr_host + dlr_port + "/exist/apps/dlr-api/";
 	private static String dlr_app_apis_url = dlr_app_url + "api/";
 	private static String get_usernames_api_url = dlr_app_apis_url + "users/";
 	private static String get_server_version_api_url = dlr_app_apis_url + "system/version/";

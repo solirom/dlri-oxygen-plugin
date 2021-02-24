@@ -5,7 +5,7 @@
 
 	<groupId>ro.dlri.oxygen</groupId>
 	<artifactId>dlri-oxygen-plugin</artifactId>
-	<version>3.100</version>
+	<version>3.102</version>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -16,8 +16,8 @@
 		<oxygen.author.home>/home/claudius/oxygen/author</oxygen.author.home>
 		<frameworkName>dlri</frameworkName>
 		<frameworkDir>${oxygen.author.home}${file.separator}frameworks${file.separator}${frameworkName}</frameworkDir>
-		<location>http://repo.dlri.ro/${project.artifactId}/${project.artifactId}.jar</location>
-		<frameworkDirName>http://repo.dlri.ro/${project.artifactId}/addon.xml</frameworkDirName>
+		<location>https://github.com/solirom/${project.artifactId}/raw/master/releases/${project.artifactId}.jar</location>
+		<frameworkDirName>https://raw.githubusercontent.com/solirom/${project.artifactId}/master/releases/addon.xml</frameworkDirName>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<maven.build.timestamp.format>MMddHHmm</maven.build.timestamp.format>
 		<maven.version>3.6.0</maven.version>
@@ -311,4 +311,3 @@
 	</profiles>
 
 </project>
-
