@@ -250,12 +250,12 @@ public class TreeFormControl extends InplaceEditorRendererAdapter {
 
 		}
 
-		private void _changeCurrentElementDisplayStatus(AttrValue currentEditedAttrValue,
+		private void _changeCurrentElementDisplayStatus(AttrValue currentlyEditedAttrValue,
 				AuthorDocumentController authorDocumentController, AuthorElement currentNode) {
 
 			String currentNodeName = currentNode.getName();
 
-			authorDocumentController.setAttribute("currentEdited", currentEditedAttrValue, (AuthorElement) currentNode);
+			authorDocumentController.setAttribute("currentlyEdited", currentlyEditedAttrValue, (AuthorElement) currentNode);
 
 			AuthorNode[] currentSenseNodeParentsList = null;
 
@@ -269,7 +269,7 @@ public class TreeFormControl extends InplaceEditorRendererAdapter {
 
 			for (int i = 0, il = currentSenseNodeParentsList.length; i < il; i++) {
 				AuthorNode currentSenseNodeParent = currentSenseNodeParentsList[i];
-				authorDocumentController.setAttribute("currentEditedParent", currentEditedAttrValue,
+				authorDocumentController.setAttribute("currentlyEditedParent", currentlyEditedAttrValue,
 						(AuthorElement) currentSenseNodeParent);
 			}
 		}
