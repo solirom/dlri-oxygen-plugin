@@ -90,10 +90,10 @@ public class TreeFormControl extends InplaceEditorRendererAdapter {
 			UtilAccess utilAccess = authorAccess.getUtilAccess();
 
 			if (tree.getSelectionPath() == null) {
-				authorWorkspaceAccess
-						.showErrorMessage("Pentru a acționa asupra arborelui trebuie să selectați un articol.");
+				authorWorkspaceAccess.showErrorMessage("Pentru a acționa asupra arborelui trebuie să selectați un articol.");
 				return;
 			}
+
 			try {
 				DefaultMutableTreeNode currentTreeItem = (DefaultMutableTreeNode) tree.getSelectionPath()
 						.getLastPathComponent();
@@ -168,25 +168,24 @@ public class TreeFormControl extends InplaceEditorRendererAdapter {
 							currentAuthorElement);
 
 				} else if (REMOVE_COMMAND.equals(command)) {
-
+					logger.debug("claudius = " + currentOffset);
 					if (currentNodeXpathPath.equals(tree.parentNodePath + "/sense[1]")) {
 						authorWorkspaceAccess.showErrorMessage(
 								"Nu puteți șterge acest sens, deoarece o intrare trebuie să aibă cel puțin un sens!");
 						return;
 					}
 
-					_changeCurrentElementDisplayStatus(new AttrValue("true", "true", false), authorDocumentController,
-							currentAuthorElement);
-					authorActionsProvider.invokeAuthorExtensionActionInContext(
-							authorActionsProvider.getAuthorExtensionActions().get("deleteSenseElement"), currentOffset);
-					_changeCurrentElementDisplayStatus(new AttrValue("false", "false", false), authorDocumentController,
-							currentAuthorElement);
-
+					_changeCurrentElementDisplayStatus(new AttrValue("true", "true", false), authorDocumentController, currentAuthorElement);
+					logger.debug("claudius 2 = " + currentOffset);
+					authorActionsProvider.invokeAuthorExtensionActionInContext(authorActionsProvider.getAuthorExtensionActions().get("deleteSenseElement"), currentOffset);
+					logger.debug("claudius 3 = " + currentOffset);
+					_changeCurrentElementDisplayStatus(new AttrValue("false", "false", false), authorDocumentController, currentAuthorElement);
+					logger.debug("claudius 4 = " + currentOffset);
 					if (Files.exists(openedFile)) {
 						authorWorkspaceAccess.close(openedFileUrl);
 						Utils.forceDelete(openedFile);
 					}
-
+					logger.debug("claudius 5 = " + currentOffset);
 				} else if (EDIT_COMMAND.equals(command)) {
 
 					AuthorDocumentFragment currentNodeAsDocumentFragment = null;
@@ -196,8 +195,7 @@ public class TreeFormControl extends InplaceEditorRendererAdapter {
 						authorDocumentController.beginCompoundEdit();
 						currentNodeAsDocumentFragment = authorDocumentController.createDocumentFragment(currentNode,
 								true);
-						currentNodeAsString = authorDocumentController
-								.serializeFragmentToXML(currentNodeAsDocumentFragment);
+						currentNodeAsString = authorDocumentController.serializeFragmentToXML(currentNodeAsDocumentFragment);
 						logger.debug("currentNodeAsString = " + currentNodeAsString);
 					} catch (BadLocationException e1) {
 						e1.printStackTrace();
@@ -250,8 +248,7 @@ public class TreeFormControl extends InplaceEditorRendererAdapter {
 
 		}
 
-		private void _changeCurrentElementDisplayStatus(AttrValue currentlyEditedAttrValue,
-				AuthorDocumentController authorDocumentController, AuthorElement currentNode) {
+		private void _changeCurrentElementDisplayStatus(AttrValue currentlyEditedAttrValue, AuthorDocumentController authorDocumentController, AuthorElement currentNode) {
 
 			String currentNodeName = currentNode.getName();
 
@@ -307,8 +304,7 @@ public class TreeFormControl extends InplaceEditorRendererAdapter {
 		removeButton.addActionListener(defaultAction);
 		removeButton.setToolTipText("Ștergere");
 
-		JScrollPane scrollPane = new JScrollPane(tree, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		JScrollPane scrollPane = new JScrollPane(tree, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setPreferredSize(new Dimension(1050, 300));
 		componentPanel.add(scrollPane);
 

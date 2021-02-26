@@ -96,7 +96,7 @@ public class TreeTemplate extends JTree {
 		JFrame f = new JFrame();
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		String treeParentNodePath = "//entry";
+		String treeParentNodePath = "//dictScrap[@xml:id = 'senses']";
 		TreeTemplate tree = new TreeTemplate();
 		DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(new TreeItemInfo("Sensuri", treeParentNodePath));
 		DefaultTreeModel treeModel = new DefaultTreeModel(rootNode);
@@ -134,7 +134,6 @@ public class TreeTemplate extends JTree {
 		}
 
 		int senseElementsNumber = senseNodesList.length;
-		logger.debug("senseElementsNumber = " + senseElementsNumber);
 
 		for (int i = 0, il = senseElementsNumber; i < il; i++) {
 			AuthorNode senseNode = senseNodesList[i];
