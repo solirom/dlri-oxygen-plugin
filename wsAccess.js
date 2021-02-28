@@ -1,6 +1,58 @@
 function applicationStarted(pluginWorkspaceAccess) {
-    Packages.java.lang.System.err.println("Application started " + pluginWorkspaceAccess);
+    Packages.java.lang.System.out.println("Application started " + pluginWorkspaceAccess);
 
+    var editorOpenedListener = {
+        editorOpened: function(editorLocation) {
+            var editor = pluginWorkspaceAccess.getEditorAccess(editorLocation, Packages.ro.sync.exml.workspace.api.PluginWorkspace.MAIN_EDITING_AREA);
+
+            preSaveListener = {
+
+                /* Called when a document is about to be Saved */
+                editorAboutToBeSavedVeto: function(operationType) {
+                    if (operationType == Packages.ro.sync.exml.workspace.api.listeners.WSEditorListener.SAVE_OPERATION) {
+                        Packages.java.lang.System.out.println("editorAboutToBeSavedVeto " + editorLocation);
+
+                        /* Access root Element of Document and read oxyFramework attribute
+                        str = editor.createContentInputStream();
+                        reader = new Packages.java.io.InputStreamReader(str, "UTF-8");
+                        is = new Packages.org.xml.sax.InputSource(reader);
+                        is.setEncoding("UTF-8");
+                        dbf = new Packages.javax.xml.parsers.DocumentBuilderFactory.newInstance();
+                        db = dbf.newDocumentBuilder();
+                        doc = db.parse(is);
+                        rootElement = doc.getDocumentElement();
+                        */
+                    }
+
+                    return true;
+                }
+            }
+
+            preSaveListener = new JavaAdapter(Packages.ro.sync.exml.workspace.api.listeners.WSEditorListener, preSaveListener);
+            if (editor != 0) {
+                editor.addEditorListener(preSaveListener);
+
+            }
+        }
+    }
+    var editorOpenedListenerAdapter = new JavaAdapter(Packages.ro.sync.exml.workspace.api.listeners.WSEditorChangeListener, editorOpenedListener);
+    /* Add the editor changed listener */
+    pluginWorkspaceAccess.addEditorChangeListener(editorOpenedListenerAdapter, Packages.ro.sync.exml.workspace.api.PluginWorkspace.MAIN_EDITING_AREA);
+
+
+    // function for reloading the rendering
+    var editorSelectedListener = {
+        /*Called when a document  is opened*/
+        editorSelected: function(editorLocation) {
+            Packages.java.lang.System.out.println("editorSelectedListener " + editorLocation);
+        }
+    }
+    var editorSelectedListenerAdapter = new JavaAdapter(Packages.ro.sync.exml.workspace.api.listeners.WSEditorChangeListener, editorSelectedListener);
+    pluginWorkspaceAccess.addEditorChangeListener(editorSelectedListenerAdapter, Packages.ro.sync.exml.workspace.api.PluginWorkspace.MAIN_EDITING_AREA);
+}
+
+  
+   /* 
 	pluginWorkspaceAccess.addEditorChangeListener(new Packages.ro.sync.exml.workspace.api.listeners.WSEditorChangeListener() {
 		@Override
 		public void editorOpened(Packages.java.net.URL url) {
@@ -49,8 +101,7 @@ function applicationStarted(pluginWorkspaceAccess) {
 			});
 		}
 	}, Packages.ro.sync.exml.workspace.api.PluginWorkspace.MAIN_EDITING_AREA);
-}
-
+*/
 function applicationClosing(pluginWorkspaceAccess) {
     Packages.java.lang.System.err.println("Application closing " + pluginWorkspaceAccess);
 }

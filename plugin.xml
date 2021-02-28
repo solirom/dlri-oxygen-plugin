@@ -12,7 +12,7 @@
         <library name="lib/plugin.jar" scope="global" />
         <library name="${oxygenInstallDir}/jre/lib/ext/jfxrt.jar" />
     </runtime>
-<!--     <extension type="WorkspaceAccessJS" href="wsAccess.js"/> -->
+    <extension type="WorkspaceAccessJS" href="wsAccess.js"/>
     <extension type="WorkspaceAccess" class="ro.dlri.oxygen.plugin.DlriOxygenPluginExtension"/>
     <extension type="AdditionalFrameworks" path="frameworks"/>
     <toolbar id="DlrToolbar" initialSide="NORTH" initialRow="1"/>

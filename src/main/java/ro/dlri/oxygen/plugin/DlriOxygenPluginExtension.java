@@ -211,10 +211,6 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 		dataSourceConnectionInfo = getPluginWorkspaceAccess().getDataSourceAccess()
 				.getDataSourceConnectionInfo(connectionName);
 
-		// TODO: remove
-		// dataSourceConnectionInfo.getProperty(DataSourceConnectionInfo.PORT) == null
-		// after some time
-
 		downloadExistDbFiles();
 
 		// download and store bibliographic-references.xml
