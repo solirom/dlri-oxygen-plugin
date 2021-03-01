@@ -5,7 +5,7 @@
 
 	<groupId>ro.dlri.oxygen</groupId>
 	<artifactId>dlri-oxygen-plugin</artifactId>
-	<version>4.3</version>
+	<version>4.4</version>
 	<packaging>jar</packaging>
 
 	<properties>
