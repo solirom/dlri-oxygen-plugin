@@ -216,6 +216,12 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 		// download and store bibliographic-references.xml
 		downloadAndStoreBinaryFile(get_sigla_api_url, "bibliographic-references.xml", resourcesDir.resolve("xml"));
 
+		String userEmail = optionsStorage.getOption("dlri.userEmail", "");
+		logger.debug("userEmail '" + userEmail + "'");
+
+		Optional.ofNullable(userEmail)
+			.map(d1 -> d1.equals("") ? "" : null)
+			.ifPresent(d2 -> generateDatasourceConnection());		
 		Optional.ofNullable(dataSourceConnectionInfo)
 				.map(d1 -> d1.getProperty(DataSourceConnectionInfo.URL).toString().contains("188.212.37.221") ? "exist.solirom.ro"
 						: null)
@@ -556,6 +562,8 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 
 		String username = ((Username) searchCriterionComboBox.getSelectedItem()).getUserid();
 		logger.debug("username = " + username);
+		String userEmail = ((Username) searchCriterionComboBox.getSelectedItem()).getUserEmail();
+		logger.debug("userEmail = " + userEmail);		
 		String password = new String(passwordField.getPassword());
 		logger.debug("password = " + password);
 
@@ -579,6 +587,7 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 				new DBConnectionInfo[] { eXistSessionInfo });
 
 		optionsStorage.setOption("dlri.username", username);
+		optionsStorage.setOption("dlri.userEmail", userEmail);
 		optionsStorage.setOption("dlri.datasourceName", datasourceName);
 		optionsStorage.setOption("dlri.connectionName", connectionName);
 

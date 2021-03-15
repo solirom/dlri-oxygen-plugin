@@ -10,7 +10,9 @@ function applicationStarted(pluginWorkspaceAccess) {
                 /* Called when a document is about to be Saved */
                 editorAboutToBeSavedVeto: function(operationType) {
                     if (operationType == Packages.ro.sync.exml.workspace.api.listeners.WSEditorListener.SAVE_OPERATION) {
-                        Packages.java.lang.System.out.println("editorAboutToBeSavedVeto " + editorLocation);
+                        var optionsStorage = pluginWorkspaceAccess.getOptionsStorage();
+                        var username = optionsStorage.getOption("dlri.username", "");
+                        Packages.java.lang.System.out.println("username " + username);
 
                         /* Access root Element of Document and read oxyFramework attribute
                         str = editor.createContentInputStream();
