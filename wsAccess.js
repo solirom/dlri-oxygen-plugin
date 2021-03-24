@@ -1,6 +1,4 @@
 function applicationStarted(pluginWorkspaceAccess) {
-    Packages.java.lang.System.out.println("Application started " + pluginWorkspaceAccess);
-
     var editorOpenedListener = {
         editorOpened: function(editorLocation) {
             var editor = pluginWorkspaceAccess.getEditorAccess(editorLocation, Packages.ro.sync.exml.workspace.api.PluginWorkspace.MAIN_EDITING_AREA);
@@ -12,7 +10,10 @@ function applicationStarted(pluginWorkspaceAccess) {
                     if (operationType == Packages.ro.sync.exml.workspace.api.listeners.WSEditorListener.SAVE_OPERATION) {
                         var optionsStorage = pluginWorkspaceAccess.getOptionsStorage();
                         var username = optionsStorage.getOption("dlri.username", "");
+                        var userEmail = optionsStorage.getOption("dlri.userEmail", "");
                         Packages.java.lang.System.out.println("username " + username);
+                        Packages.java.lang.System.out.println("userEmail " + userEmail);
+                        
 
                         /* Access root Element of Document and read oxyFramework attribute
                         str = editor.createContentInputStream();

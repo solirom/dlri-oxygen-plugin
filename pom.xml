@@ -5,7 +5,7 @@
 
 	<groupId>ro.dlri.oxygen</groupId>
 	<artifactId>dlri-oxygen-plugin</artifactId>
-	<version>4.8</version>
+	<version>4.9</version>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -65,6 +65,12 @@
 			<version>1.2.14</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20140107</version>
+			<scope>provided</scope>
+		</dependency>		
 		<dependency>
 			<groupId>com.oracle</groupId>
 			<artifactId>javafx</artifactId>

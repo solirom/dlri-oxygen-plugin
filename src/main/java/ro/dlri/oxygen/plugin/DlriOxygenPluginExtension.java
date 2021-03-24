@@ -3,6 +3,8 @@ package ro.dlri.oxygen.plugin;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -15,6 +17,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,6 +25,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -34,6 +38,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -65,6 +70,12 @@ import ro.sync.exml.workspace.api.standalone.MenuBarCustomizer;
 import ro.sync.exml.workspace.api.standalone.StandalonePluginWorkspace;
 import ro.sync.exml.workspace.api.standalone.ToolbarComponentsCustomizer;
 import ro.sync.exml.workspace.api.standalone.ToolbarInfo;
+import ro.sync.exml.workspace.api.standalone.ViewComponentCustomizer;
+import ro.sync.exml.workspace.api.standalone.ViewInfo;
+
+import org.json.JSONObject;
+import org.json.JSONArray;
+
 
 /**
  * Plugin extension - dlri extension.
@@ -76,6 +87,7 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 	static boolean isWindows;
 
 	private static String frameworkId = "dlri";
+	private static String viewId = "entriesView";
 
 	private static String datasourceName = frameworkId;
 	private static String connectionName = frameworkId + ".ro";
@@ -102,6 +114,7 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 	private static String get_entry_full_api_url = dlr_app_apis_url + "entry/full";
 	private static String get_sigla_api_url = "http://" + dlr_host + dlr_port + "/exist/rest/db/data/dlr/bibliographic-references.xml";
 
+	private static String git_repo_base_url = "https://gitlab.com/api/v4/projects/25150395/repository/";
 	public JFrame parentFrame;
 
 	private StandalonePluginWorkspace pluginWorkspaceAccess;
@@ -110,6 +123,8 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 	private Action addonUpdatesAction = null;
 	private WSOptionsStorage optionsStorage = null;
 	private DataSourceConnectionInfo dataSourceConnectionInfo = null;
+
+	private static HashMap<String, String> entriesAsHashMap = new HashMap<String, String>();
 
 	static {
 		isWindows = System.getProperty("os.name").toLowerCase().contains("windows");
@@ -459,6 +474,18 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 			}
 		});
 
+		pluginWorkspaceAccess.addViewComponentCustomizer(new ViewComponentCustomizer() {
+			public void customizeView(ViewInfo viewInfo) {
+				if (viewId.equals(viewInfo.getViewID())) {
+					viewInfo.setTitle("Intrări");
+
+					JList<?> entriesAsList = downloadEntries(optionsStorage.getOption("dlri.username", ""));
+
+					viewInfo.setComponent(entriesAsList);
+				}
+			}
+		});		
+
 	}
 
 	@Override
@@ -686,5 +713,93 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 		// try (InputStream in = url.openStream()) {
 		// return new String(in.readAllBytes(), StandardCharsets.UTF_8);
 		// }
+	}
+
+	private static JList<?> downloadEntries(String username) {
+		String sourceUrl = git_repo_base_url + "tree?path=2/" + username;
+
+		String entries = _downloadGitString(sourceUrl);
+
+		JSONArray entriesAsJsonArray = new JSONArray(entries);
+		entriesAsHashMap.clear();
+
+		for (int i=0; i < entriesAsJsonArray.length(); i++) {
+			JSONObject item = entriesAsJsonArray.getJSONObject(i);
+			String type = item.getString("type");
+
+			if (!type.equals("blob")) {
+				continue;
+			}
+
+			String name = item.getString("name");
+			String path = item.getString("path");
+
+			entriesAsHashMap.put(name, path);						
+		}
+
+		JList<?> entriesAsList = new JList(entriesAsHashMap.keySet().toArray());
+		entriesAsList.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 1 && !e.isPopupTrigger()) {
+					String selectedValue = (String) entriesAsList.getSelectedValue();
+
+					openEntry(selectedValue);
+				}
+			}
+		});		
+
+
+		return entriesAsList;
+	}
+
+	private static void openEntry(String selectedValue) {
+		try {
+			String filePath = entriesAsHashMap.get(selectedValue);
+			filePath = URLEncoder.encode(filePath, StandardCharsets.UTF_8.toString());
+			String fileURL = git_repo_base_url + "files/" + filePath + "/raw?ref=master";
+			//"https://gitlab.com/api/v4/projects/25150395/repository/files/bibl-correspondences%2Exml/raw?ref=master"
+			String fileContents = _downloadGitString(fileURL);
+			logger.debug("fileContents = " + fileContents);
+
+			/*Path path = Paths.get(System.getProperty("java.io.tmpdir"), "ilir.rdf");
+			File file = path.toFile();
+			file.deleteOnExit();
+
+			ReadableByteChannel rbc = Channels.newChannel(ilirOntologyUrl.openStream());
+			FileOutputStream fos = new FileOutputStream(file);
+			fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+			fos.close();
+			rbc.close();
+
+			pluginWorkspaceAccess.open(file.toURI().toURL(), EditorPageConstants.PAGE_AUTHOR, "text/xml");*/
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}	
+
+	private static String _downloadGitString(String url) {
+		URL urlObj;
+		URLConnection conn = null;
+		String result = "";
+		logger.debug("downloading text file " + url);
+
+		try {
+			urlObj = new URL(url);
+			conn = urlObj.openConnection();
+			conn.setRequestProperty ("PRIVATE-TOKEN", "CdyAz7jYYCN-Gb7jjg5p");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		try (BufferedReader reader = new BufferedReader(
+				new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+					result = reader.lines().collect(Collectors.joining("\n"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		logger.debug("result = " + result);
+
+		return result;
 	}
 }
