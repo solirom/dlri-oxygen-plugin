@@ -787,7 +787,7 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 		try {
 			urlObj = new URL(url);
 			conn = urlObj.openConnection();
-			conn.setRequestProperty ("PRIVATE-TOKEN", "CdyAz7jYYCN-Gb7jjg5p");
+			conn.setRequestProperty ("PRIVATE-TOKEN", "");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
