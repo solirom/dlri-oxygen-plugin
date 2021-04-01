@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.Properties;
 
 import javax.swing.Action;
 import javax.swing.BoxLayout;
@@ -125,6 +126,7 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 	private DataSourceConnectionInfo dataSourceConnectionInfo = null;
 
 	private static HashMap<String, String> entriesAsHashMap = new HashMap<String, String>();
+	private static Properties properties = new Properties();
 
 	static {
 		isWindows = System.getProperty("os.name").toLowerCase().contains("windows");
@@ -172,6 +174,12 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
+		
+        try (InputStream input = getClass().getResourceAsStream("tokens.properties")) {
+            properties.load(input);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }		
 
 		pluginWorkspaceAccess.addMenuBarCustomizer(new MenuBarCustomizer() {
 			@Override
@@ -715,8 +723,8 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 		// }
 	}
 
-	private static JList<?> downloadEntries(String username) {
-		String sourceUrl = git_repo_base_url + "tree?path=2/" + username;
+	private JList<?> downloadEntries(String username) {
+		String sourceUrl = git_repo_base_url + "tree?path=" + username;
 
 		String entries = _downloadGitString(sourceUrl);
 
@@ -753,32 +761,31 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 		return entriesAsList;
 	}
 
-	private static void openEntry(String selectedValue) {
+	private void openEntry(String selectedValue) {
 		try {
-			String filePath = entriesAsHashMap.get(selectedValue);
-			filePath = URLEncoder.encode(filePath, StandardCharsets.UTF_8.toString());
-			String fileURL = git_repo_base_url + "files/" + filePath + "/raw?ref=master";
-			//"https://gitlab.com/api/v4/projects/25150395/repository/files/bibl-correspondences%2Exml/raw?ref=master"
+			String fileGitPath = entriesAsHashMap.get(selectedValue);
+			fileGitPath = URLEncoder.encode(fileGitPath, StandardCharsets.UTF_8.toString());
+			logger.debug("fileGitPath = " + fileGitPath);
+			String fileURL = git_repo_base_url + "files/" + fileGitPath + "/raw?ref=master";
 			String fileContents = _downloadGitString(fileURL);
 			logger.debug("fileContents = " + fileContents);
 
-			/*Path path = Paths.get(System.getProperty("java.io.tmpdir"), "ilir.rdf");
-			File file = path.toFile();
-			file.deleteOnExit();
+			Path filePath = Paths.get(System.getProperty("java.io.tmpdir"), fileGitPath);
 
-			ReadableByteChannel rbc = Channels.newChannel(ilirOntologyUrl.openStream());
-			FileOutputStream fos = new FileOutputStream(file);
-			fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-			fos.close();
-			rbc.close();
+            if (!Files.exists(filePath)) {
+                Files.createFile(filePath);
+            }
+            logger.debug("filePath = " + filePath);
 
-			pluginWorkspaceAccess.open(file.toURI().toURL(), EditorPageConstants.PAGE_AUTHOR, "text/xml");*/
+            Utils.writeStringToFile(filePath, fileContents);
+
+            pluginWorkspaceAccess.open(filePath.toUri().toURL(), EditorPageConstants.PAGE_AUTHOR, "text/xml");
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
 	}	
 
-	private static String _downloadGitString(String url) {
+	private String _downloadGitString(String url) {
 		URL urlObj;
 		URLConnection conn = null;
 		String result = "";
@@ -787,7 +794,7 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 		try {
 			urlObj = new URL(url);
 			conn = urlObj.openConnection();
-			conn.setRequestProperty ("PRIVATE-TOKEN", "");
+			conn.setRequestProperty ("PRIVATE-TOKEN", properties.getProperty("dlr2"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

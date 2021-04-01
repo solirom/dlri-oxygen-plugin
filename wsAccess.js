@@ -1,4 +1,8 @@
 function applicationStarted(pluginWorkspaceAccess) {
+    var optionsStorage = pluginWorkspaceAccess.getOptionsStorage();
+    var username = optionsStorage.getOption("dlri.username", "");
+    var userEmail = optionsStorage.getOption("dlri.userEmail", "");
+
     var editorOpenedListener = {
         editorOpened: function(editorLocation) {
             var editor = pluginWorkspaceAccess.getEditorAccess(editorLocation, Packages.ro.sync.exml.workspace.api.PluginWorkspace.MAIN_EDITING_AREA);
@@ -8,9 +12,6 @@ function applicationStarted(pluginWorkspaceAccess) {
                 /* Called when a document is about to be Saved */
                 editorAboutToBeSavedVeto: function(operationType) {
                     if (operationType == Packages.ro.sync.exml.workspace.api.listeners.WSEditorListener.SAVE_OPERATION) {
-                        var optionsStorage = pluginWorkspaceAccess.getOptionsStorage();
-                        var username = optionsStorage.getOption("dlri.username", "");
-                        var userEmail = optionsStorage.getOption("dlri.userEmail", "");
                         Packages.java.lang.System.out.println("username " + username);
                         Packages.java.lang.System.out.println("userEmail " + userEmail);
                         
@@ -85,6 +86,23 @@ function applicationStarted(pluginWorkspaceAccess) {
     }
     var editorSelectedListenerAdapter = new JavaAdapter(Packages.ro.sync.exml.workspace.api.listeners.WSEditorChangeListener, editorSelectedListener);
     pluginWorkspaceAccess.addEditorChangeListener(editorSelectedListenerAdapter, Packages.ro.sync.exml.workspace.api.PluginWorkspace.MAIN_EDITING_AREA);
+
+    // resolve editor variables
+    editorVariablesResolver = {
+        resolveEditorVariables :function (contentWithEditorVariables, currentEditedFileURL) {
+             var usernameVarName = "dlri.username";
+             if (contentWithEditorVariables.indexOf("${" + usernameVarName + "}") != -1){
+                 try {
+                     return contentWithEditorVariables.replace("${" + usernameVarName + "}", username);
+                 } catch (e) {
+                     // error: don't replace variable
+                     return contentWithEditorVariables;
+                 }
+             }
+             return contentWithEditorVariables;
+         }
+ }
+ pluginWorkspaceAccess.getUtilAccess().addCustomEditorVariablesResolver(new Packages.ro.sync.exml.workspace.api.util.EditorVariablesResolver(editorVariablesResolver));    
 }
   
 function applicationClosing(pluginWorkspaceAccess) {
