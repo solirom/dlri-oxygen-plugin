@@ -770,16 +770,19 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 			String fileContents = _downloadGitString(fileURL);
 			logger.debug("fileContents = " + fileContents);
 
-			Path filePath = Paths.get(System.getProperty("java.io.tmpdir"), fileGitPath);
+			Path openedFilePath = createTempFile(fileGitPath);
+			logger.debug("openedFilePath = " + openedFilePath);
 
-            if (!Files.exists(filePath)) {
-                Files.createFile(filePath);
-            }
-            logger.debug("filePath = " + filePath);
+			String fileName = URLDecoder.decode(fileGitPath, Utils.utf8.displayName());
+			logger.debug("fileName = " + fileName);	
+			
+			URL openedFileUrl = openedFilePath.toUri().toURL();
 
-            Utils.writeStringToFile(filePath, fileContents);
+            Utils.writeStringToFile(openedFilePath, fileContents);
 
-            pluginWorkspaceAccess.open(filePath.toUri().toURL(), EditorPageConstants.PAGE_AUTHOR, "text/xml");
+            pluginWorkspaceAccess.open(openedFileUrl, EditorPageConstants.PAGE_AUTHOR, "text/xml");
+			WSEditor newEditor = pluginWorkspaceAccess.getCurrentEditorAccess(PluginWorkspace.MAIN_EDITING_AREA);
+			newEditor.setEditorTabText(fileName);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -809,4 +812,39 @@ public class DlriOxygenPluginExtension implements WorkspaceAccessPluginExtension
 
 		return result;
 	}
+
+	private static Path createTempFile(String filename) {       
+		File parent = new File(System.getProperty("java.io.tmpdir"));   
+	
+		File temp = new File(parent, filename);
+	
+		if (temp.exists()) {
+			temp.delete();
+		}
+	
+		try {
+			temp.createNewFile();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+
+		temp.deleteOnExit();
+	
+		return temp.toPath();
+	}
 }
+
+/* pluginWorkspaceAccess.addEditorChangeListener(new WSEditorChangeListener() {
+	@Override
+	public void editorOpened(final URL editorLocation) {
+		final WSEditor editor = pluginWorkspaceAccess.getEditorAccess(editorLocation, StandalonePluginWorkspace.MAIN_EDITING_AREA);
+		if (editor != null) {
+			editor.addEditorListener(new WSEditorListener() {
+				@Override
+				public boolean editorAboutToBeSavedVeto(int operationType) {
+					logger.debug("username = " + username);
+				}
+			});
+		}
+	}
+}); */
